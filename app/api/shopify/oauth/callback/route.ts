@@ -73,7 +73,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const redirectUrl = new URL("/dashboard", process.env.APP_URL!);
+  const redirectUrl = new URL(
+    "/dashboard",
+    process.env.NEXT_PUBLIC_APP_URL!
+  );
 
   const response = NextResponse.redirect(redirectUrl);
 

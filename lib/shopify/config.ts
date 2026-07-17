@@ -8,7 +8,7 @@ export const SHOPIFY_SCOPES = [
 ].join(",");
 
 export function getShopifyAuthUrl(shop: string, state: string) {
-  const redirectUri = `${process.env.APP_URL}/api/shopify/oauth/callback`;
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/shopify/oauth/callback`;
 
   const params = new URLSearchParams({
     client_id: process.env.SHOPIFY_API_KEY!,
