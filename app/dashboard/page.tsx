@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSession, logout, type AuthSession } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/client";
 import { initialInsights, insightHistory } from "@/lib/data/insights";
 import type { Insight, InsightStatus, DashboardStats } from "@/types/insight";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -11,6 +11,11 @@ import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { InsightCard } from "@/components/dashboard/InsightCard";
 import { InsightHistorySection } from "@/components/dashboard/InsightHistorySection";
 import { DashboardFooter } from "@/components/dashboard/DashboardFooter";
+
+type AuthSession = {
+  email: string;
+  loggedInAt: string;
+};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -23,13 +28,26 @@ export default function DashboardPage() {
   const [statsError, setStatsError] = useState<string | null>(null);
 
   useEffect(() => {
-    const current = getSession();
-    if (!current) {
-      router.replace("/login");
-      return;
+    const supabase = createClient();
+
+    async function checkSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.replace("/login");
+        return;
+      }
+
+      setSession({
+        email: session.user.email ?? "",
+        loggedInAt: new Date().toISOString(),
+      });
+      setChecked(true);
     }
-    setSession(current);
-    setChecked(true);
+
+    checkSession();
   }, [router]);
 
   useEffect(() => {
@@ -76,8 +94,9 @@ export default function DashboardPage() {
     setInsights((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
   }
 
-  function handleSignOut() {
-    logout();
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.push("/login");
   }
 
