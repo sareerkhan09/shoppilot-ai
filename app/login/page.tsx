@@ -2,11 +2,7 @@
 
 import { useRef, useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/auth";
-
-// ---------------------------------------------------------------------------
-// Small inline icons — minimal outline, no external assets.
-// ---------------------------------------------------------------------------
+import { createClient } from "@/lib/supabase/client";
 
 function MailIcon() {
   return (
@@ -92,10 +88,6 @@ function SparkIcon({ className = "" }: { className?: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Feature row (left marketing panel)
-// ---------------------------------------------------------------------------
-
 function FeatureRow({
   icon,
   title,
@@ -118,22 +110,21 @@ function FeatureRow({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Auth card with liquid mouse-tilt (matches Hero / TrustedBy interaction)
-// ---------------------------------------------------------------------------
-
 function AuthCard() {
   const router = useRouter();
+  const supabase = createClient();
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [tab, setTab] = useState<"email" | "passwordless">("email");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "shopify" | null>(null);
 
   const handleMove = (e: MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -149,8 +140,9 @@ function AuthCard() {
     setTilt({ x: 0, y: 0 });
   };
 
-  async function handleSignIn() {
+  async function handleSubmit() {
     setError(null);
+    setMessage(null);
 
     if (!email || !password) {
       setError("Enter your email and password to continue.");
@@ -158,22 +150,69 @@ function AuthCard() {
     }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 400));
 
-    const success = login(email, password);
+    if (mode === "signin") {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (success) {
+      if (signInError) {
+        setIsSubmitting(false);
+        setError(signInError.message);
+        return;
+      }
+
       router.push("/dashboard");
+      router.refresh();
     } else {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
       setIsSubmitting(false);
-      setError("That email or password doesn't match our records.");
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      setMessage("Account created. Check your email to confirm, then sign in.");
+      setMode("signin");
     }
   }
 
   function handlePasswordKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
-      handleSignIn();
+      handleSubmit();
     }
+  }
+
+  async function handleGoogleLogin() {
+    setError(null);
+    setOauthLoading("google");
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (oauthError) {
+      setError(oauthError.message);
+      setOauthLoading(null);
+    }
+  }
+
+  function handleShopifyLogin() {
+    setError(null);
+    const shop = window.prompt("Enter your Shopify store domain (e.g. your-store.myshopify.com):");
+    if (!shop) return;
+    setOauthLoading("shopify");
+    window.location.href = `/api/shopify/install?shop=${encodeURIComponent(shop.trim())}`;
   }
 
   return (
@@ -208,24 +247,32 @@ function AuthCard() {
             <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#C9A227]/25 bg-[#101114]">
               <SparkIcon />
             </div>
-            <h1 className="mt-4 font-serif text-[22px] text-[#F3F1EA]">Welcome back</h1>
+            <h1 className="mt-4 font-serif text-[22px] text-[#F3F1EA]">
+              {mode === "signin" ? "Welcome back" : "Create your account"}
+            </h1>
             <p className="mt-1.5 text-[13px] text-[#8B857C]">
-              Sign in to your ShopPilot AI account
+              {mode === "signin"
+                ? "Sign in to your ShopPilot AI account"
+                : "Start your free ShopPilot AI trial"}
             </p>
           </div>
 
           <div className="mt-7 flex items-center gap-6 border-b border-[#F3F1EA]/[0.08]">
-            {(["email", "passwordless"] as const).map((t) => (
+            {(["signin", "signup"] as const).map((m) => (
               <button
-                key={t}
+                key={m}
                 type="button"
-                onClick={() => setTab(t)}
+                onClick={() => {
+                  setMode(m);
+                  setError(null);
+                  setMessage(null);
+                }}
                 className={`relative pb-3 text-[13px] font-medium capitalize transition-colors duration-300 ${
-                  tab === t ? "text-[#F3F1EA]" : "text-[#6E6A63] hover:text-[#9C968C]"
+                  mode === m ? "text-[#F3F1EA]" : "text-[#6E6A63] hover:text-[#9C968C]"
                 }`}
               >
-                {t === "email" ? "Email" : "Passwordless"}
-                {tab === t && (
+                {m === "signin" ? "Sign in" : "Sign up"}
+                {mode === m && (
                   <span className="absolute inset-x-0 -bottom-px h-[1.5px] bg-gradient-to-r from-[#C9A227] to-[#E8C766]" />
                 )}
               </button>
@@ -247,55 +294,53 @@ function AuthCard() {
               />
             </label>
 
-            {tab === "email" && (
-              <label className="group flex items-center gap-3 rounded-xl border border-[#F3F1EA]/[0.09] bg-[#101114] px-4 py-3.5 transition-colors duration-300 focus-within:border-[#C9A227]/40">
-                <span className="text-[#6E6A63] transition-colors duration-300 group-focus-within:text-[#C9A227]">
-                  <LockIcon />
-                </span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handlePasswordKeyDown}
-                  disabled={isSubmitting}
-                  className="w-full bg-transparent text-[13.5px] text-[#F3F1EA] placeholder:text-[#6E6A63] focus:outline-none disabled:opacity-60"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="shrink-0 text-[#6E6A63] transition-colors duration-300 hover:text-[#9C968C]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  <EyeIcon open={showPassword} />
-                </button>
-              </label>
+            <label className="group flex items-center gap-3 rounded-xl border border-[#F3F1EA]/[0.09] bg-[#101114] px-4 py-3.5 transition-colors duration-300 focus-within:border-[#C9A227]/40">
+              <span className="text-[#6E6A63] transition-colors duration-300 group-focus-within:text-[#C9A227]">
+                <LockIcon />
+              </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handlePasswordKeyDown}
+                disabled={isSubmitting}
+                className="w-full bg-transparent text-[13.5px] text-[#F3F1EA] placeholder:text-[#6E6A63] focus:outline-none disabled:opacity-60"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="shrink-0 text-[#6E6A63] transition-colors duration-300 hover:text-[#9C968C]"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                <EyeIcon open={showPassword} />
+              </button>
+            </label>
+
+            {mode === "signin" && (
+              <div className="mt-1 flex items-center justify-end text-[12px]">
+                <a href="#" className="text-[#C9A227] transition-colors hover:text-[#E8C766]">
+                  Forgot password?
+                </a>
+              </div>
             )}
 
-            <div className="mt-1 flex items-center justify-between text-[12px]">
-              <label className="flex items-center gap-2 text-[#8B857C]">
-                <input
-                  type="checkbox"
-                  className="h-3.5 w-3.5 rounded border-[#F3F1EA]/20 bg-[#101114] accent-[#C9A227]"
-                />
-                Remember me
-              </label>
-              <a href="#" className="text-[#C9A227] transition-colors hover:text-[#E8C766]">
-                Forgot password?
-              </a>
-            </div>
-
-            {error && (
-              <p className="text-[12px] text-[#E5786E]">{error}</p>
-            )}
+            {error && <p className="text-[12px] text-[#E5786E]">{error}</p>}
+            {message && <p className="text-[12px] text-[#8FBF6B]">{message}</p>}
 
             <button
               type="button"
-              onClick={handleSignIn}
+              onClick={handleSubmit}
               disabled={isSubmitting}
               className="group relative mt-1 inline-flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[#E8C766] via-[#C9A227] to-[#B8860B] py-3.5 text-[13.5px] font-medium text-black transition-transform duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting
+                ? mode === "signin"
+                  ? "Signing in..."
+                  : "Creating account..."
+                : mode === "signin"
+                ? "Sign in"
+                : "Create account"}
             </button>
           </div>
 
@@ -310,17 +355,21 @@ function AuthCard() {
           <div className="flex flex-col gap-3">
             <button
               type="button"
-              className="flex items-center justify-center gap-2.5 rounded-xl border border-[#F3F1EA]/[0.1] bg-[#101114] py-3 text-[13px] text-[#F3F1EA] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3F1EA]/20"
+              onClick={handleGoogleLogin}
+              disabled={oauthLoading !== null}
+              className="flex items-center justify-center gap-2.5 rounded-xl border border-[#F3F1EA]/[0.1] bg-[#101114] py-3 text-[13px] text-[#F3F1EA] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3F1EA]/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <GoogleIcon />
-              Continue with Google
+              {oauthLoading === "google" ? "Redirecting..." : "Continue with Google"}
             </button>
             <button
               type="button"
-              className="flex items-center justify-center gap-2.5 rounded-xl border border-[#F3F1EA]/[0.1] bg-[#101114] py-3 text-[13px] text-[#F3F1EA] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3F1EA]/20"
+              onClick={handleShopifyLogin}
+              disabled={oauthLoading !== null}
+              className="flex items-center justify-center gap-2.5 rounded-xl border border-[#F3F1EA]/[0.1] bg-[#101114] py-3 text-[13px] text-[#F3F1EA] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3F1EA]/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <ShopBagIcon />
-              Continue with Shopify
+              {oauthLoading === "shopify" ? "Redirecting..." : "Continue with Shopify"}
             </button>
           </div>
 
@@ -332,10 +381,6 @@ function AuthCard() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Floating dashboard preview cards (left panel)
-// ---------------------------------------------------------------------------
 
 function OverviewCard() {
   return (
@@ -389,10 +434,6 @@ function InsightCard() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function LoginPage() {
   return (
