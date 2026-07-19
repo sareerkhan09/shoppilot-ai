@@ -1,19 +1,21 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "656e3feb981aa51e29102ea030aa7b11"
-application_url = "https://shopify.dev/apps/default-app-home"
-embedded = true
+client_id = "f35f5224fafc87093a57165feb0abf40"
 name = "ShopPilot AI"
+application_url = "https://shoppilot-ai-inky.vercel.app"
+embedded = true
 
 [webhooks]
 api_version = "2026-10"
 
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = ""
+scopes = "read_orders,read_products,read_customers,read_inventory"
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [
+  "http://localhost:3000/api/shopify/oauth/callback",
+  "https://shoppilot-ai-inky.vercel.app/api/shopify/oauth/callback"
+]
 
 [build]
 automatically_update_urls_on_dev = true
