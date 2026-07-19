@@ -403,8 +403,8 @@ export default function ProductsPage() {
       <div className="flex min-h-screen flex-1 flex-col">
         <DashboardHeader email={email} onSignOut={handleSignOut} />
 
-        <main className="flex-1 px-6 py-8 md:px-10 md:py-10">
-          <div className="mx-auto max-w-[1600px]">
+        <main className="flex-1 overflow-x-hidden px-6 py-8 md:px-10 md:py-10">
+          <div className="mx-auto max-w-[1600px] min-w-0">
             {/* Page heading */}
             <div className="mb-8 animate-[fadeIn_0.5s_ease-out]">
               <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -423,9 +423,9 @@ export default function ProductsPage() {
               <StatCard label="Need Restock" value={stats.needRestock.toString()} />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
+            <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
               {/* Main column */}
-              <div>
+              <div className="min-w-0">
                 {/* Search + Filters */}
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="relative w-full md:max-w-sm">
