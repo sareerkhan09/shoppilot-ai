@@ -59,20 +59,17 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile top bar with hamburger toggle */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-[#0D0F14] px-4 py-4 lg:hidden">
-        <h1 className="text-xl font-bold text-white">
-          Shop<span className="text-[#E8B65A]">Pilot</span>
-        </h1>
+      {/* Mobile hamburger trigger — fixed, out of page flow so it never affects layout width */}
+      {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label="Open menu"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-[#171A22] text-gray-300 transition hover:text-white"
+          className="fixed left-4 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-[#171A22] text-gray-300 shadow-lg transition hover:text-white lg:hidden"
         >
           <Menu size={20} />
         </button>
-      </div>
+      )}
 
       {/* Mobile overlay backdrop */}
       {isOpen && (
