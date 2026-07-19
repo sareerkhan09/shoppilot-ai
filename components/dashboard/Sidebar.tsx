@@ -11,32 +11,32 @@ const menu = [
   },
   {
     name: "Revenue",
-    href: "#",
+    href: "/revenue",
     icon: DollarSign,
   },
   {
     name: "Orders",
-    href: "#",
+    href: "/orders",
     icon: ShoppingCart,
   },
   {
     name: "Products",
-    href: "#",
+    href: "/products",
     icon: Package,
   },
   {
     name: "Customers",
-    href: "#",
+    href: "/customers",
     icon: Users,
   },
   {
     name: "AI Insights",
-    href: "#",
+    href: "/insights",
     icon: Bot,
   },
   {
     name: "Settings",
-    href: "#",
+    href: "/settings",
     icon: Settings,
   },
 ];
