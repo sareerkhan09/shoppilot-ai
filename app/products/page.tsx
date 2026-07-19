@@ -403,8 +403,8 @@ export default function ProductsPage() {
       <div className="flex min-h-screen flex-1 flex-col">
         <DashboardHeader email={email} onSignOut={handleSignOut} />
 
-        <main className="flex-1 overflow-x-hidden px-6 py-8 md:px-10 md:py-10">
-          <div className="mx-auto max-w-[1600px] min-w-0">
+        <main className="flex-1 overflow-x-hidden px-4 py-8 md:px-6 md:py-10 xl:px-8">
+          <div className="mx-auto max-w-[1680px] min-w-0">
             {/* Page heading */}
             <div className="mb-8 animate-[fadeIn_0.5s_ease-out]">
               <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -423,7 +423,7 @@ export default function ProductsPage() {
               <StatCard label="Need Restock" value={stats.needRestock.toString()} />
             </div>
 
-            <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_272px]">
               {/* Main column */}
               <div className="min-w-0">
                 {/* Search + Filters */}
@@ -494,19 +494,31 @@ export default function ProductsPage() {
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="w-full min-w-[1100px] text-left text-sm">
+                      <table className="w-full table-fixed text-left text-[13px]">
+                        <colgroup>
+                          <col className="w-[52px]" />
+                          <col className="w-auto" />
+                          <col className="w-[84px]" />
+                          <col className="w-[104px]" />
+                          <col className="w-[64px]" />
+                          <col className="w-[56px]" />
+                          <col className="w-[84px]" />
+                          <col className="w-[68px]" />
+                          <col className="w-[92px]" />
+                          <col className="w-[116px]" />
+                        </colgroup>
                         <thead>
-                          <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-500">
-                            <th className="px-5 py-4 font-medium">Image</th>
-                            <th className="px-5 py-4 font-medium">Product Name</th>
-                            <th className="px-5 py-4 font-medium">SKU</th>
-                            <th className="px-5 py-4 font-medium">Inventory</th>
-                            <th className="px-5 py-4 font-medium">Price</th>
-                            <th className="px-5 py-4 font-medium">Sales (30d)</th>
-                            <th className="px-5 py-4 font-medium">Revenue</th>
-                            <th className="px-5 py-4 font-medium">Status</th>
-                            <th className="px-5 py-4 font-medium">AI Score</th>
-                            <th className="px-5 py-4 text-right font-medium">Action</th>
+                          <tr className="border-b border-white/10 text-[10px] uppercase tracking-wider text-zinc-500">
+                            <th className="px-2.5 py-3 font-medium">Image</th>
+                            <th className="px-2.5 py-3 font-medium">Product</th>
+                            <th className="px-2.5 py-3 font-medium">SKU</th>
+                            <th className="px-2.5 py-3 font-medium">Inventory</th>
+                            <th className="px-2.5 py-3 font-medium">Price</th>
+                            <th className="px-2.5 py-3 font-medium">Sales</th>
+                            <th className="px-2.5 py-3 font-medium">Revenue</th>
+                            <th className="px-2.5 py-3 font-medium">Status</th>
+                            <th className="px-2.5 py-3 font-medium">AI Score</th>
+                            <th className="px-2.5 py-3 text-right font-medium">Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -518,17 +530,19 @@ export default function ProductsPage() {
                                 animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
                               }}
                             >
-                              <td className="px-5 py-4">
+                              <td className="px-2.5 py-3">
                                 <div
-                                  className={`h-11 w-11 rounded-xl bg-gradient-to-br ${product.imageColor} shadow-inner`}
+                                  className={`h-8 w-8 rounded-lg bg-gradient-to-br ${product.imageColor} shadow-inner`}
                                 />
                               </td>
-                              <td className="px-5 py-4">
-                                <div className="font-medium text-white">{product.name}</div>
-                                <div className="text-xs text-zinc-500">{product.vendor}</div>
+                              <td className="px-2.5 py-3">
+                                <div className="truncate font-medium text-white">{product.name}</div>
+                                <div className="truncate text-[11px] text-zinc-500">{product.vendor}</div>
                               </td>
-                              <td className="px-5 py-4 text-zinc-400">{product.sku}</td>
-                              <td className="px-5 py-4">
+                              <td className="px-2.5 py-3 text-zinc-400">
+                                <span className="block truncate">{product.sku}</span>
+                              </td>
+                              <td className="px-2.5 py-3">
                                 <div className="flex flex-col gap-1">
                                   <InventoryBadge status={product.inventoryStatus} />
                                   <span className="text-[10px] text-zinc-500">
@@ -536,26 +550,26 @@ export default function ProductsPage() {
                                   </span>
                                 </div>
                               </td>
-                              <td className="px-5 py-4 text-zinc-300">
+                              <td className="px-2.5 py-3 text-zinc-300">
                                 {formatCurrency(product.price)}
                               </td>
-                              <td className="px-5 py-4 text-zinc-300">{product.sales30d}</td>
-                              <td className="px-5 py-4 font-medium text-white">
+                              <td className="px-2.5 py-3 text-zinc-300">{product.sales30d}</td>
+                              <td className="px-2.5 py-3 font-medium text-white">
                                 {formatCurrency(product.revenue30d)}
                               </td>
-                              <td className="px-5 py-4">
+                              <td className="px-2.5 py-3">
                                 <StatusBadge status={product.status} />
                               </td>
-                              <td className="px-5 py-4">
+                              <td className="px-2.5 py-3">
                                 <AIScoreBadge score={product.aiScore} />
                               </td>
-                              <td className="px-5 py-4">
-                                <div className="flex items-center justify-end gap-2">
-                                  <button className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition-all duration-200 hover:border-white/20 hover:text-white">
+                              <td className="px-2.5 py-3">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[11px] font-medium text-zinc-300 transition-all duration-200 hover:border-white/20 hover:text-white">
                                     View
                                   </button>
-                                  <button className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/20">
-                                    AI Analyze
+                                  <button className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-400 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/20">
+                                    AI
                                   </button>
                                 </div>
                               </td>
