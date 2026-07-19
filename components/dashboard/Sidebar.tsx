@@ -65,7 +65,7 @@ export function Sidebar() {
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label="Open menu"
-          className="fixed left-4 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-[#171A22] text-gray-300 shadow-lg transition hover:text-white lg:hidden"
+          className="fixed left-4 top-4 z-[100] flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-[#171A22] text-gray-300 shadow-lg transition hover:text-white lg:hidden"
         >
           <Menu size={20} />
         </button>
@@ -75,7 +75,7 @@ export function Sidebar() {
       {isOpen && (
         <div
           onClick={closeSidebar}
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+          className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
         />
       )}
 
@@ -83,7 +83,7 @@ export function Sidebar() {
       <aside
         className={`
           flex w-64 shrink-0 flex-col border-r border-white/10 bg-[#0D0F14]
-          fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
+          fixed inset-y-0 left-0 z-[95] transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:flex
         `}
