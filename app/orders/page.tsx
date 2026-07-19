@@ -273,7 +273,7 @@ export default function OrdersPage() {
       <div className="flex min-h-screen flex-1 flex-col">
         <DashboardHeader email={email} onSignOut={handleSignOut} />
 
-        <main className="flex-1 px-6 py-8 md:px-10 md:py-10">
+        <main className="flex-1 px-4 py-8 sm:px-6 md:px-10 md:py-10">
           <div className="mx-auto max-w-7xl">
             {/* Page heading */}
             <div className="mb-8 animate-[fadeIn_0.5s_ease-out]">
@@ -338,7 +338,7 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Orders table */}
+            {/* Orders table (desktop/tablet) + card list (mobile) */}
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
               {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
@@ -363,57 +363,104 @@ export default function OrdersPage() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[900px] text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-500">
-                        <th className="px-5 py-4 font-medium">Order</th>
-                        <th className="px-5 py-4 font-medium">Customer</th>
-                        <th className="px-5 py-4 font-medium">Date</th>
-                        <th className="px-5 py-4 font-medium">Items</th>
-                        <th className="px-5 py-4 font-medium">Payment</th>
-                        <th className="px-5 py-4 font-medium">Fulfillment</th>
-                        <th className="px-5 py-4 font-medium">Total</th>
-                        <th className="px-5 py-4 text-right font-medium">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredOrders.map((order, idx) => (
-                        <tr
-                          key={order.id}
-                          className="border-b border-white/5 transition-colors duration-200 last:border-b-0 hover:bg-white/[0.03]"
-                          style={{
-                            animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
-                          }}
-                        >
-                          <td className="px-5 py-4 font-medium text-white">
-                            {order.orderNumber}
-                          </td>
-                          <td className="px-5 py-4">
-                            <div className="text-zinc-200">{order.customerName}</div>
-                            <div className="text-xs text-zinc-500">{order.customerEmail}</div>
-                          </td>
-                          <td className="px-5 py-4 text-zinc-400">{formatDate(order.date)}</td>
-                          <td className="px-5 py-4 text-zinc-400">{order.itemsCount}</td>
-                          <td className="px-5 py-4">
-                            <PaymentBadge status={order.payment} />
-                          </td>
-                          <td className="px-5 py-4">
-                            <FulfillmentBadge status={order.fulfillment} />
-                          </td>
-                          <td className="px-5 py-4 font-medium text-white">
+                <>
+                  {/* Mobile: stacked cards, no horizontal scroll */}
+                  <div className="divide-y divide-white/5 md:hidden">
+                    {filteredOrders.map((order, idx) => (
+                      <div
+                        key={order.id}
+                        className="p-4 transition-colors duration-200 active:bg-white/[0.03]"
+                        style={{
+                          animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium text-white">{order.orderNumber}</p>
+                            <p className="mt-0.5 truncate text-sm text-zinc-200">
+                              {order.customerName}
+                            </p>
+                            <p className="truncate text-xs text-zinc-500">
+                              {order.customerEmail}
+                            </p>
+                          </div>
+                          <p className="shrink-0 font-medium text-white">
                             {formatCurrency(order.total, order.currency)}
-                          </td>
-                          <td className="px-5 py-4 text-right">
-                            <button className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition-all duration-200 hover:border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-400">
-                              View
-                            </button>
-                          </td>
+                          </p>
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <PaymentBadge status={order.payment} />
+                          <FulfillmentBadge status={order.fulfillment} />
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
+                          <span>{formatDate(order.date)}</span>
+                          <span>
+                            {order.itemsCount} item{order.itemsCount === 1 ? "" : "s"}
+                          </span>
+                        </div>
+
+                        <button className="mt-3 w-full rounded-lg border border-white/10 bg-white/[0.03] py-2 text-xs font-medium text-zinc-300 transition-all duration-200 active:border-amber-500/30 active:bg-amber-500/10 active:text-amber-400">
+                          View order
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Tablet/desktop: full table */}
+                  <div className="hidden overflow-x-auto md:block">
+                    <table className="w-full min-w-[900px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-500">
+                          <th className="px-5 py-4 font-medium">Order</th>
+                          <th className="px-5 py-4 font-medium">Customer</th>
+                          <th className="px-5 py-4 font-medium">Date</th>
+                          <th className="px-5 py-4 font-medium">Items</th>
+                          <th className="px-5 py-4 font-medium">Payment</th>
+                          <th className="px-5 py-4 font-medium">Fulfillment</th>
+                          <th className="px-5 py-4 font-medium">Total</th>
+                          <th className="px-5 py-4 text-right font-medium">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {filteredOrders.map((order, idx) => (
+                          <tr
+                            key={order.id}
+                            className="border-b border-white/5 transition-colors duration-200 last:border-b-0 hover:bg-white/[0.03]"
+                            style={{
+                              animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
+                            }}
+                          >
+                            <td className="px-5 py-4 font-medium text-white">
+                              {order.orderNumber}
+                            </td>
+                            <td className="px-5 py-4">
+                              <div className="text-zinc-200">{order.customerName}</div>
+                              <div className="text-xs text-zinc-500">{order.customerEmail}</div>
+                            </td>
+                            <td className="px-5 py-4 text-zinc-400">{formatDate(order.date)}</td>
+                            <td className="px-5 py-4 text-zinc-400">{order.itemsCount}</td>
+                            <td className="px-5 py-4">
+                              <PaymentBadge status={order.payment} />
+                            </td>
+                            <td className="px-5 py-4">
+                              <FulfillmentBadge status={order.fulfillment} />
+                            </td>
+                            <td className="px-5 py-4 font-medium text-white">
+                              {formatCurrency(order.total, order.currency)}
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              <button className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition-all duration-200 hover:border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-400">
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
