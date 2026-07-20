@@ -5,223 +5,215 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardFooter } from "@/components/dashboard/DashboardFooter";
 
-type ProductStatus = "Active" | "Draft";
-type InventoryStatus = "Healthy" | "Low Stock" | "Out of Stock";
-type FilterKey =
-  | "All"
-  | "Active"
-  | "Draft"
-  | "Best Sellers"
-  | "Low Stock"
-  | "Out of Stock"
-  | "Dead Products";
+type CustomerStatus = "VIP" | "Repeat Customer" | "New Customer" | "Churn Risk" | "Inactive";
+type FilterKey = "All" | "VIP" | "Repeat" | "New" | "High Value" | "Inactive" | "Churn Risk";
 
-interface Product {
+interface Customer {
   id: string;
   name: string;
-  sku: string;
-  vendor: string;
-  imageColor: string;
-  inventoryCount: number;
-  inventoryStatus: InventoryStatus;
-  price: number;
-  sales30d: number;
-  revenue30d: number;
-  status: ProductStatus;
+  email: string;
+  avatarColor: string;
+  ordersCount: number;
+  totalSpent: number;
+  avgOrderValue: number;
+  lastOrderDate: string;
+  ltv: number;
   aiScore: number;
-  isBestSeller: boolean;
-  isDead: boolean;
+  status: CustomerStatus;
+  isHighValue: boolean;
+  isNew: boolean;
 }
 
 interface AIInsight {
   id: string;
-  productName: string;
+  customerName: string;
   headline: string;
   detail: string;
   tone: "positive" | "warning" | "opportunity";
 }
 
-const MOCK_PRODUCTS: Product[] = [
+const MOCK_CUSTOMERS: Customer[] = [
   {
     id: "1",
-    name: "Heritage Fold Wallet",
-    sku: "SP-WAL-001",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-amber-700 to-amber-900",
-    inventoryCount: 142,
-    inventoryStatus: "Healthy",
-    price: 89.0,
-    sales30d: 218,
-    revenue30d: 19402.0,
-    status: "Active",
-    aiScore: 97,
-    isBestSeller: true,
-    isDead: false,
+    name: "Amara Whitfield",
+    email: "amara.w@gmail.com",
+    avatarColor: "from-amber-600 to-amber-900",
+    ordersCount: 14,
+    totalSpent: 2840.5,
+    avgOrderValue: 202.89,
+    lastOrderDate: "2026-07-19T14:32:00Z",
+    ltv: 3620.0,
+    aiScore: 96,
+    status: "VIP",
+    isHighValue: true,
+    isNew: false,
   },
   {
     id: "2",
-    name: "Onyx Crossbody Bag",
-    sku: "SP-BAG-014",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-zinc-700 to-zinc-900",
-    inventoryCount: 34,
-    inventoryStatus: "Low Stock",
-    price: 168.0,
-    sales30d: 41,
-    revenue30d: 6888.0,
-    status: "Active",
-    aiScore: 63,
-    isBestSeller: false,
-    isDead: false,
+    name: "Julian Cross",
+    email: "julian.cross@outlook.com",
+    avatarColor: "from-zinc-600 to-zinc-900",
+    ordersCount: 2,
+    totalSpent: 118.99,
+    avgOrderValue: 59.5,
+    lastOrderDate: "2026-07-19T11:05:00Z",
+    ltv: 210.0,
+    aiScore: 72,
+    status: "New Customer",
+    isHighValue: false,
+    isNew: true,
   },
   {
     id: "3",
-    name: "Signature Card Holder",
-    sku: "SP-CRD-007",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-amber-600 to-yellow-800",
-    inventoryCount: 289,
-    inventoryStatus: "Healthy",
-    price: 42.0,
-    sales30d: 176,
-    revenue30d: 7392.0,
-    status: "Active",
-    aiScore: 91,
-    isBestSeller: true,
-    isDead: false,
+    name: "Naomi Vasquez",
+    email: "naomi.v@icloud.com",
+    avatarColor: "from-rose-700 to-rose-950",
+    ordersCount: 9,
+    totalSpent: 1612.0,
+    avgOrderValue: 179.11,
+    lastOrderDate: "2026-07-18T20:47:00Z",
+    ltv: 1980.0,
+    aiScore: 88,
+    status: "Repeat Customer",
+    isHighValue: true,
+    isNew: false,
   },
   {
     id: "4",
-    name: "Nomad Travel Pouch",
-    sku: "SP-PCH-022",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-neutral-700 to-neutral-900",
-    inventoryCount: 0,
-    inventoryStatus: "Out of Stock",
-    price: 56.0,
-    sales30d: 12,
-    revenue30d: 672.0,
-    status: "Active",
-    aiScore: 58,
-    isBestSeller: false,
-    isDead: false,
+    name: "Theo Marchetti",
+    email: "theo.m@proton.me",
+    avatarColor: "from-blue-700 to-blue-950",
+    ordersCount: 6,
+    totalSpent: 428.75,
+    avgOrderValue: 71.46,
+    lastOrderDate: "2026-05-02T09:14:00Z",
+    ltv: 460.0,
+    aiScore: 41,
+    status: "Churn Risk",
+    isHighValue: false,
+    isNew: false,
   },
   {
     id: "5",
-    name: "Classic Belt — Black",
-    sku: "SP-BLT-005",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-stone-700 to-stone-900",
-    inventoryCount: 198,
-    inventoryStatus: "Healthy",
-    price: 64.0,
-    sales30d: 3,
-    revenue30d: 192.0,
-    status: "Draft",
-    aiScore: 21,
-    isBestSeller: false,
-    isDead: true,
+    name: "Priya Nandakumar",
+    email: "priya.n@yahoo.com",
+    avatarColor: "from-emerald-700 to-emerald-950",
+    ordersCount: 11,
+    totalSpent: 1949.2,
+    avgOrderValue: 177.2,
+    lastOrderDate: "2026-07-17T16:58:00Z",
+    ltv: 2340.0,
+    aiScore: 91,
+    status: "VIP",
+    isHighValue: true,
+    isNew: false,
   },
   {
     id: "6",
-    name: "Weekender Duffel",
-    sku: "SP-DUF-009",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-amber-800 to-orange-950",
-    inventoryCount: 18,
-    inventoryStatus: "Low Stock",
-    price: 245.0,
-    sales30d: 29,
-    revenue30d: 7105.0,
-    status: "Active",
-    aiScore: 84,
-    isBestSeller: false,
-    isDead: false,
+    name: "Elias Brennan",
+    email: "elias.brennan@gmail.com",
+    avatarColor: "from-stone-600 to-stone-900",
+    ordersCount: 1,
+    totalSpent: 42.0,
+    avgOrderValue: 42.0,
+    lastOrderDate: "2026-07-17T08:21:00Z",
+    ltv: 60.0,
+    aiScore: 58,
+    status: "New Customer",
+    isHighValue: false,
+    isNew: true,
   },
   {
     id: "7",
-    name: "Slim Keychain Wallet",
-    sku: "SP-KEY-018",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-yellow-700 to-amber-900",
-    inventoryCount: 76,
-    inventoryStatus: "Healthy",
-    price: 29.0,
-    sales30d: 94,
-    revenue30d: 2726.0,
-    status: "Active",
-    aiScore: 88,
-    isBestSeller: false,
-    isDead: false,
+    name: "Sofia Lindqvist",
+    email: "sofia.l@hotmail.com",
+    avatarColor: "from-orange-700 to-orange-950",
+    ordersCount: 8,
+    totalSpent: 1391.4,
+    avgOrderValue: 173.93,
+    lastOrderDate: "2026-07-16T19:03:00Z",
+    ltv: 1620.0,
+    aiScore: 84,
+    status: "Repeat Customer",
+    isHighValue: true,
+    isNew: false,
   },
   {
     id: "8",
-    name: "Vintage Passport Case",
-    sku: "SP-PAS-011",
-    vendor: "ShopPilot Leather Co.",
-    imageColor: "from-red-900 to-stone-900",
-    inventoryCount: 5,
-    inventoryStatus: "Low Stock",
-    price: 38.0,
-    sales30d: 1,
-    revenue30d: 38.0,
-    status: "Draft",
-    aiScore: 14,
-    isBestSeller: false,
-    isDead: true,
+    name: "Marcus Delaney",
+    email: "marcus.d@icloud.com",
+    avatarColor: "from-red-800 to-neutral-950",
+    ordersCount: 3,
+    totalSpent: 210.0,
+    avgOrderValue: 70.0,
+    lastOrderDate: "2026-03-11T12:00:00Z",
+    ltv: 210.0,
+    aiScore: 19,
+    status: "Inactive",
+    isHighValue: false,
+    isNew: false,
   },
 ];
 
 const AI_INSIGHTS: AIInsight[] = [
   {
     id: "1",
-    productName: "Heritage Fold Wallet",
-    headline: "Sales increased 28%",
-    detail: "Restock within 5 days to avoid a stockout.",
+    customerName: "Amara Whitfield",
+    headline: "Customer likely to purchase again",
+    detail: "Recommend WhatsApp campaign within 3 days.",
     tone: "positive",
   },
   {
     id: "2",
-    productName: "Onyx Crossbody Bag",
-    headline: "Sales slowing down",
-    detail: "Consider running a limited-time discount.",
-    tone: "warning",
-  },
-  {
-    id: "3",
-    productName: "Heritage Fold Wallet",
-    headline: "High margin product",
-    detail: "Increase ad budget to scale winning SKU.",
+    customerName: "Priya Nandakumar",
+    headline: "High LTV customer",
+    detail: "Recommend email campaign with early access offer.",
     tone: "opportunity",
   },
   {
-    id: "4",
-    productName: "Classic Belt — Black",
-    headline: "Dead stock detected",
-    detail: "No meaningful sales in 30 days. Consider bundling or discontinuing.",
+    id: "3",
+    customerName: "Theo Marchetti",
+    headline: "Customer inactive for 60 days",
+    detail: "Churn risk rising. Consider a win-back discount.",
     tone: "warning",
   },
   {
+    id: "4",
+    customerName: "Naomi Vasquez",
+    headline: "Upsell opportunity detected",
+    detail: "Frequently buys wallets. Suggest matching belt bundle.",
+    tone: "opportunity",
+  },
+  {
     id: "5",
-    productName: "Weekender Duffel",
-    headline: "Strong AI score of 84",
-    detail: "Low inventory relative to demand. Reorder recommended.",
+    customerName: "Sofia Lindqvist",
+    headline: "Bundle recommendation",
+    detail: "Pairs well with a travel accessories bundle offer.",
     tone: "positive",
+  },
+  {
+    id: "6",
+    customerName: "Marcus Delaney",
+    headline: "VIP retention opportunity",
+    detail: "Once high-value, now inactive. Reach out personally.",
+    tone: "warning",
   },
 ];
 
-const FILTERS: FilterKey[] = [
-  "All",
-  "Active",
-  "Draft",
-  "Best Sellers",
-  "Low Stock",
-  "Out of Stock",
-  "Dead Products",
-];
+const FILTERS: FilterKey[] = ["All", "VIP", "Repeat", "New", "High Value", "Inactive", "Churn Risk"];
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function isWithinDays(iso: string, days: number) {
+  const diff = Date.now() - new Date(iso).getTime();
+  return diff / (1000 * 60 * 60 * 24) <= days;
 }
 
 function getAIScoreTier(score: number): { label: string; classes: string } {
@@ -249,31 +241,19 @@ function AIScoreBadge({ score }: { score: number }) {
   );
 }
 
-function InventoryBadge({ status }: { status: InventoryStatus }) {
-  const styles: Record<InventoryStatus, string> = {
-    Healthy: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    "Low Stock": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    "Out of Stock": "bg-rose-500/10 text-rose-400 border-rose-500/20",
+function StatusBadge({ status }: { status: CustomerStatus }) {
+  const styles: Record<CustomerStatus, string> = {
+    VIP: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    "Repeat Customer": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    "New Customer": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    "Churn Risk": "bg-rose-500/10 text-rose-400 border-rose-500/20",
+    Inactive: "bg-white/5 text-zinc-400 border-white/10",
   };
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      {status}
-    </span>
-  );
-}
-
-function StatusBadge({ status }: { status: ProductStatus }) {
-  const styles: Record<ProductStatus, string> = {
-    Active: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    Draft: "bg-white/5 text-zinc-400 border-white/10",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
-    >
       {status}
     </span>
   );
@@ -289,6 +269,25 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function Avatar({ name, colorClass, size = 10 }: { name: string; colorClass: string; size?: number }) {
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  const sizeClass = size === 8 ? "h-8 w-8 text-[10px]" : "h-10 w-10 text-xs";
+
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${colorClass} font-semibold text-white shadow-inner ${sizeClass}`}
+    >
+      {initials}
+    </div>
+  );
+}
+
 function InsightIcon({ tone }: { tone: AIInsight["tone"] }) {
   const colors: Record<AIInsight["tone"], string> = {
     positive: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
@@ -300,17 +299,13 @@ function InsightIcon({ tone }: { tone: AIInsight["tone"] }) {
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${colors[tone]}`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M13 10V3L4 14h7v7l9-11h-7z"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     </div>
   );
 }
 
-export default function ProductsPage() {
+export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All");
   const [email, setEmail] = useState<string | undefined>(undefined);
@@ -352,33 +347,32 @@ export default function ProductsPage() {
     }
   };
 
-  const filteredProducts = useMemo(() => {
+  const filteredCustomers = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return MOCK_PRODUCTS.filter((product) => {
+    return MOCK_CUSTOMERS.filter((customer) => {
       const matchesSearch =
         query.length === 0 ||
-        product.name.toLowerCase().includes(query) ||
-        product.sku.toLowerCase().includes(query) ||
-        product.vendor.toLowerCase().includes(query);
+        customer.name.toLowerCase().includes(query) ||
+        customer.email.toLowerCase().includes(query);
 
       if (!matchesSearch) return false;
 
       switch (activeFilter) {
         case "All":
           return true;
-        case "Active":
-          return product.status === "Active";
-        case "Draft":
-          return product.status === "Draft";
-        case "Best Sellers":
-          return product.isBestSeller;
-        case "Low Stock":
-          return product.inventoryStatus === "Low Stock";
-        case "Out of Stock":
-          return product.inventoryStatus === "Out of Stock";
-        case "Dead Products":
-          return product.isDead;
+        case "VIP":
+          return customer.status === "VIP";
+        case "Repeat":
+          return customer.status === "Repeat Customer";
+        case "New":
+          return customer.isNew;
+        case "High Value":
+          return customer.isHighValue;
+        case "Inactive":
+          return customer.status === "Inactive";
+        case "Churn Risk":
+          return customer.status === "Churn Risk";
         default:
           return true;
       }
@@ -386,14 +380,12 @@ export default function ProductsPage() {
   }, [search, activeFilter]);
 
   const stats = useMemo(() => {
-    const total = MOCK_PRODUCTS.length;
-    const active = MOCK_PRODUCTS.filter((p) => p.status === "Active").length;
-    const outOfStock = MOCK_PRODUCTS.filter((p) => p.inventoryStatus === "Out of Stock").length;
-    const needRestock = MOCK_PRODUCTS.filter(
-      (p) => p.inventoryStatus === "Low Stock" || p.inventoryStatus === "Out of Stock"
-    ).length;
+    const total = MOCK_CUSTOMERS.length;
+    const repeat = MOCK_CUSTOMERS.filter((c) => c.status === "Repeat Customer" || c.status === "VIP").length;
+    const newLast30 = MOCK_CUSTOMERS.filter((c) => c.isNew && isWithinDays(c.lastOrderDate, 30)).length;
+    const avgLtv = MOCK_CUSTOMERS.reduce((sum, c) => sum + c.ltv, 0) / (MOCK_CUSTOMERS.length || 1);
 
-    return { total, active, outOfStock, needRestock };
+    return { total, repeat, newLast30, avgLtv };
   }, []);
 
   return (
@@ -405,28 +397,24 @@ export default function ProductsPage() {
 
         <main className="flex-1 overflow-x-hidden px-4 py-8 md:px-6 md:py-10 xl:px-8">
           <div className="mx-auto max-w-[1680px] min-w-0">
-            {/* Page heading */}
             <div className="mb-8 animate-[fadeIn_0.5s_ease-out]">
               <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
-                Products
+                Customers
               </h1>
               <p className="mt-2 text-sm text-zinc-400 md:text-base">
-                Manage products with AI-powered insights.
+                Manage your customers with AI-powered insights.
               </p>
             </div>
 
-            {/* Top statistics */}
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="Total Products" value={stats.total.toString()} />
-              <StatCard label="Active Products" value={stats.active.toString()} />
-              <StatCard label="Out of Stock" value={stats.outOfStock.toString()} />
-              <StatCard label="Need Restock" value={stats.needRestock.toString()} />
+              <StatCard label="Total Customers" value={stats.total.toString()} />
+              <StatCard label="Repeat Customers" value={stats.repeat.toString()} />
+              <StatCard label="New Customers (30 Days)" value={stats.newLast30.toString()} />
+              <StatCard label="Average Lifetime Value" value={formatCurrency(stats.avgLtv)} />
             </div>
 
             <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_272px]">
-              {/* Main column */}
               <div className="min-w-0">
-                {/* Search + Filters */}
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="relative w-full md:max-w-sm">
                     <svg
@@ -446,7 +434,7 @@ export default function ProductsPage() {
                       type="text"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search by name, SKU, or vendor"
+                      placeholder="Search customer, email, phone, or order ID"
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition-all duration-200 focus:border-amber-500/40 focus:bg-white/[0.05] focus:ring-2 focus:ring-amber-500/10"
                     />
                   </div>
@@ -468,9 +456,8 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                {/* Products table (desktop/tablet) + card list (mobile) */}
                 <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-                  {filteredProducts.length === 0 ? (
+                  {filteredCustomers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
                       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
                         <svg
@@ -483,51 +470,59 @@ export default function ProductsPage() {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+                            d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
                           />
                         </svg>
                       </div>
-                      <p className="text-sm font-medium text-white">No products found</p>
+                      <p className="text-sm font-medium text-white">No customers found</p>
                       <p className="mt-1 text-xs text-zinc-500">
                         Try adjusting your search or filters.
                       </p>
                     </div>
                   ) : (
                     <>
-                      {/* Mobile: stacked cards, no horizontal scroll */}
                       <div className="divide-y divide-white/5 md:hidden">
-                        {filteredProducts.map((product, idx) => (
+                        {filteredCustomers.map((customer, idx) => (
                           <div
-                            key={product.id}
+                            key={customer.id}
                             className="p-4 transition-colors duration-200 active:bg-white/[0.03]"
-                            style={{
-                              animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
-                            }}
+                            style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both` }}
                           >
                             <div className="flex items-start gap-3">
-                              <div
-                                className={`h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br ${product.imageColor} shadow-inner`}
-                              />
+                              <Avatar name={customer.name} colorClass={customer.avatarColor} />
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-2">
-                                  <p className="truncate font-medium text-white">{product.name}</p>
+                                  <p className="truncate font-medium text-white">{customer.name}</p>
                                   <p className="shrink-0 font-medium text-white">
-                                    {formatCurrency(product.revenue30d)}
+                                    {formatCurrency(customer.totalSpent)}
                                   </p>
                                 </div>
-                                <p className="truncate text-xs text-zinc-500">{product.sku}</p>
+                                <p className="truncate text-xs text-zinc-500">{customer.email}</p>
                               </div>
                             </div>
 
                             <div className="mt-3 flex flex-wrap items-center gap-2">
-                              <InventoryBadge status={product.inventoryStatus} />
-                              <StatusBadge status={product.status} />
-                              <AIScoreBadge score={product.aiScore} />
+                              <StatusBadge status={customer.status} />
+                              <AIScoreBadge score={customer.aiScore} />
                             </div>
 
-                            <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
-                              <span>{formatCurrency(product.price)} · {product.inventoryCount} in stock</span>
-                              <span>{product.sales30d} sold (30d)</span>
+                            <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-center">
+                              <div>
+                                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Orders</p>
+                                <p className="mt-0.5 text-sm font-medium text-white">{customer.ordersCount}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-wider text-zinc-500">LTV</p>
+                                <p className="mt-0.5 text-sm font-medium text-white">
+                                  {formatCurrency(customer.ltv)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Last Order</p>
+                                <p className="mt-0.5 text-sm font-medium text-white">
+                                  {formatDate(customer.lastOrderDate)}
+                                </p>
+                              </div>
                             </div>
 
                             <div className="mt-3 flex items-center gap-2">
@@ -542,76 +537,70 @@ export default function ProductsPage() {
                         ))}
                       </div>
 
-                      {/* Tablet/desktop: full table */}
                       <div className="hidden overflow-x-auto md:block">
                         <table className="w-full table-fixed text-left text-[13px]">
                           <colgroup>
-                            <col className="w-[52px]" />
+                            <col className="w-[48px]" />
                             <col className="w-auto" />
-                            <col className="w-[84px]" />
-                            <col className="w-[104px]" />
-                            <col className="w-[64px]" />
+                            <col className="w-[150px]" />
                             <col className="w-[56px]" />
                             <col className="w-[84px]" />
-                            <col className="w-[68px]" />
+                            <col className="w-[84px]" />
+                            <col className="w-[76px]" />
+                            <col className="w-[84px]" />
                             <col className="w-[92px]" />
+                            <col className="w-[128px]" />
                             <col className="w-[116px]" />
                           </colgroup>
                           <thead>
                             <tr className="border-b border-white/10 text-[10px] uppercase tracking-wider text-zinc-500">
-                              <th className="px-2.5 py-3 font-medium">Image</th>
-                              <th className="px-2.5 py-3 font-medium">Product</th>
-                              <th className="px-2.5 py-3 font-medium">SKU</th>
-                              <th className="px-2.5 py-3 font-medium">Inventory</th>
-                              <th className="px-2.5 py-3 font-medium">Price</th>
-                              <th className="px-2.5 py-3 font-medium">Sales</th>
-                              <th className="px-2.5 py-3 font-medium">Revenue</th>
-                              <th className="px-2.5 py-3 font-medium">Status</th>
+                              <th className="px-2.5 py-3 font-medium">Profile</th>
+                              <th className="px-2.5 py-3 font-medium">Customer</th>
+                              <th className="px-2.5 py-3 font-medium">Email</th>
+                              <th className="px-2.5 py-3 font-medium">Orders</th>
+                              <th className="px-2.5 py-3 font-medium">Spent</th>
+                              <th className="px-2.5 py-3 font-medium">Avg Order</th>
+                              <th className="px-2.5 py-3 font-medium">Last Order</th>
+                              <th className="px-2.5 py-3 font-medium">LTV</th>
                               <th className="px-2.5 py-3 font-medium">AI Score</th>
-                              <th className="px-2.5 py-3 text-right font-medium">Action</th>
+                              <th className="px-2.5 py-3 font-medium">Status</th>
+                              <th className="px-2.5 py-3 text-right font-medium">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {filteredProducts.map((product, idx) => (
+                            {filteredCustomers.map((customer, idx) => (
                               <tr
-                                key={product.id}
+                                key={customer.id}
                                 className="border-b border-white/5 transition-colors duration-200 last:border-b-0 hover:bg-white/[0.03]"
-                                style={{
-                                  animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both`,
-                                }}
+                                style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.04}s both` }}
                               >
                                 <td className="px-2.5 py-3">
-                                  <div
-                                    className={`h-8 w-8 rounded-lg bg-gradient-to-br ${product.imageColor} shadow-inner`}
-                                  />
+                                  <Avatar name={customer.name} colorClass={customer.avatarColor} size={8} />
                                 </td>
                                 <td className="px-2.5 py-3">
-                                  <div className="truncate font-medium text-white">{product.name}</div>
-                                  <div className="truncate text-[11px] text-zinc-500">{product.vendor}</div>
+                                  <div className="truncate font-medium text-white">{customer.name}</div>
                                 </td>
                                 <td className="px-2.5 py-3 text-zinc-400">
-                                  <span className="block truncate">{product.sku}</span>
+                                  <span className="block truncate">{customer.email}</span>
                                 </td>
-                                <td className="px-2.5 py-3">
-                                  <div className="flex flex-col gap-1">
-                                    <InventoryBadge status={product.inventoryStatus} />
-                                    <span className="text-[10px] text-zinc-500">
-                                      {product.inventoryCount} in stock
-                                    </span>
-                                  </div>
+                                <td className="px-2.5 py-3 text-zinc-300">{customer.ordersCount}</td>
+                                <td className="px-2.5 py-3 font-medium text-white">
+                                  {formatCurrency(customer.totalSpent)}
                                 </td>
                                 <td className="px-2.5 py-3 text-zinc-300">
-                                  {formatCurrency(product.price)}
+                                  {formatCurrency(customer.avgOrderValue)}
                                 </td>
-                                <td className="px-2.5 py-3 text-zinc-300">{product.sales30d}</td>
+                                <td className="px-2.5 py-3 text-zinc-400">
+                                  {formatDate(customer.lastOrderDate)}
+                                </td>
                                 <td className="px-2.5 py-3 font-medium text-white">
-                                  {formatCurrency(product.revenue30d)}
+                                  {formatCurrency(customer.ltv)}
                                 </td>
                                 <td className="px-2.5 py-3">
-                                  <StatusBadge status={product.status} />
+                                  <AIScoreBadge score={customer.aiScore} />
                                 </td>
                                 <td className="px-2.5 py-3">
-                                  <AIScoreBadge score={product.aiScore} />
+                                  <StatusBadge status={customer.status} />
                                 </td>
                                 <td className="px-2.5 py-3">
                                   <div className="flex items-center justify-end gap-1.5">
@@ -633,7 +622,6 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              {/* AI Insight Panel */}
               <aside className="hidden xl:block">
                 <div className="sticky top-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5">
                   <div className="mb-5 flex items-center gap-2">
@@ -646,7 +634,7 @@ export default function ProductsPage() {
                         />
                       </svg>
                     </div>
-                    <h2 className="text-sm font-semibold text-white">AI Recommendation</h2>
+                    <h2 className="text-sm font-semibold text-white">AI Customer Insights</h2>
                   </div>
 
                   <div className="flex flex-col divide-y divide-white/5">
@@ -654,11 +642,9 @@ export default function ProductsPage() {
                       <div key={insight.id} className="flex gap-3 py-4 first:pt-0 last:pb-0">
                         <InsightIcon tone={insight.tone} />
                         <div className="min-w-0">
-                          <p className="text-xs font-medium text-zinc-500">{insight.productName}</p>
+                          <p className="text-xs font-medium text-zinc-500">{insight.customerName}</p>
                           <p className="mt-0.5 text-sm font-medium text-white">{insight.headline}</p>
-                          <p className="mt-0.5 text-xs leading-relaxed text-zinc-400">
-                            {insight.detail}
-                          </p>
+                          <p className="mt-0.5 text-xs leading-relaxed text-zinc-400">{insight.detail}</p>
                         </div>
                       </div>
                     ))}
